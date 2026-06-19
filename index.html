@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday Joyyy💖</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    position: relative;
+  }
+
+  canvas#fireworks {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+  }
+
+  /* Stars background */
+  #stars {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+
+  .screen {
+    position: relative;
+    z-index: 2;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .hidden { display: none !important; }
+
+  /* Countdown screen */
+  #countdown-title {
+    color: #f5c518;
+    font-size: clamp(22px, 5vw, 42px);
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 15px rgba(245, 197, 24, 0.6);
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    from { text-shadow: 0 0 10px rgba(245,197,24,0.4); }
+    to   { text-shadow: 0 0 25px rgba(245,197,24,0.9); }
+  }
+
+  .timer {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .timer-box {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(245,197,24,0.4);
+    border-radius: 16px;
+    padding: 18px 22px;
+    min-width: 80px;
+    backdrop-filter: blur(4px);
+  }
+
+  .timer-box span {
+    display: block;
+  }
+
+  .timer-num {
+    font-size: clamp(28px, 6vw, 48px);
+    color: #fff;
+    font-weight: bold;
+  }
+
+  .timer-label {
+    font-size: 13px;
+    color: #f5c518;
+    margin-top: 6px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  #sub-text {
+    margin-top: 35px;
+    color: #aaa;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Celebration screen */
+  #celebration h1 {
+    font-size: clamp(32px, 8vw, 64px);
+    color: #fff;
+    text-shadow: 0 0 20px #ff5fa2, 0 0 40px #f5c518;
+    margin-bottom: 10px;
+    animation: pop 0.8s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  #celebration .for {
+    color: #f5c518;
+    font-size: clamp(18px, 3vw, 24px);
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+  }
+
+  .message-card {
+    max-width: 650px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(245,197,24,0.3);
+    border-radius: 20px;
+    padding: 35px 30px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 40px rgba(245,197,24,0.15);
+    animation: fadein 1.5s ease 0.3s both;
+  }
+
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .message-card p {
+    color: #f0f0f0;
+    font-size: clamp(15px, 2.2vw, 18px);
+    line-height: 1.7;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+
+  .signature {
+    text-align: right;
+    color: #f5c518;
+    font-size: 20px;
+    font-style: italic;
+    margin-top: 10px;
+  }
+
+  .replay-btn {
+    margin-top: 30px;
+    background: transparent;
+    border: 1px solid #f5c518;
+    color: #f5c518;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 14px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+  }
+
+  .replay-btn:hover {
+    background: #f5c518;
+    color: #000;
+  }
+
+  @media (max-width: 480px) {
+    .timer-box { padding: 12px 14px; min-width: 65px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+<canvas id="fireworks"></canvas>
+
+<!-- COUNTDOWN SCREEN -->
+<div class="screen" id="countdown-screen">
+  <div id="countdown-title">🎉 Something special is loading for Joy... 🎉</div>
+  <div class="timer">
+    <div class="timer-box"><span class="timer-num" id="days">00</span><span class="timer-label">Days</span></div>
+    <div class="timer-box"><span class="timer-num" id="hours">00</span><span class="timer-label">Hours</span></div>
+    <div class="timer-box"><span class="timer-num" id="minutes">00</span><span class="timer-label">Minutes</span></div>
+    <div class="timer-box"><span class="timer-num" id="seconds">00</span><span class="timer-label">Seconds</span></div>
+  </div>
+  <div id="sub-text">Hang tight... the countdown to Joy's birthday is ticking ⏳</div>
+  <div id="sound-hint" style="margin-top:14px; color:#666; font-size:13px;">🔊 Tap anywhere on this page once to turn on sound</div>
+</div>
+
+<!-- CELEBRATION SCREEN -->
+<div class="screen hidden" id="celebration">
+  <h1>Happy Birthday, Joyyy! 🎂💖</h1>
+  <div class="for">From your Chinnu 🤍</div>
+  <div class="message-card">
+    <p>Since 2018, you've been more than just a classmate — you were my whole school life. The one person I could always run to, laugh with, and lean on when nothing made sense.</p>
+    <p>You laugh at literally everything — even things that aren't funny — and honestly? That's your superpower. You walk into a room confused, laugh your way through it, and somehow make everyone feel better. (And yes, we're still not talking about your math scores 😂)</p>
+    <p>But behind all that laughter is the sweetest, most caring soul I know. You were there for me when it mattered most, and that's something I'll never forget.</p>
+    <p>Here's to you, Joy — may this year bring you as much happiness as you bring to everyone around you. And maybe… just maybe… a little bit of mathematics 🙏😄</p>
+    <p class="signature">— Chinnu 🤍</p>
+  </div>
+  <button class="replay-btn" id="replay">🎆 Relive the fireworks</button>
+</div>
+
+<script>
+/* ===================== CONFIG ===================== */
+// Set the exact target date/time for the birthday reveal
+// Format: new Date(year, monthIndex(0-based), day, hour, minute)
+const targetDate = new Date(2026, 5, 20, 0, 0, 0); // June 20, 2026, 12:00 AM
+
+/* ===================== STARS BACKGROUND ===================== */
+const starCanvas = document.getElementById('stars');
+const starCtx = starCanvas.getContext('2d');
+function resizeCanvases() {
+  starCanvas.width = window.innerWidth;
+  starCanvas.height = window.innerHeight;
+  fwCanvas.width = window.innerWidth;
+  fwCanvas.height = window.innerHeight;
+}
+let stars = [];
+function initStars() {
+  stars = [];
+  const count = Math.floor((window.innerWidth * window.innerHeight) / 4000);
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: Math.random() * 1.4 + 0.2,
+      alpha: Math.random(),
+      speed: Math.random() * 0.02 + 0.005
+    });
+  }
+}
+function drawStars() {
+  starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+  starCtx.fillStyle = '#fff';
+  stars.forEach(s => {
+    s.alpha += s.speed;
+    if (s.alpha > 1 || s.alpha < 0) s.speed *= -1;
+    starCtx.globalAlpha = Math.abs(Math.sin(s.alpha));
+    starCtx.beginPath();
+    starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    starCtx.fill();
+  });
+  starCtx.globalAlpha = 1;
+  requestAnimationFrame(drawStars);
+}
+
+/* ===================== COUNTDOWN ===================== */
+function updateCountdown() {
+  const now = new Date().getTime();
+  const distance = targetDate.getTime() - now;
+
+  if (distance <= 0) {
+    showCelebration();
+    return;
+  }
+
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  document.getElementById('days').textContent = String(days).padStart(2, '0');
+  document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+  document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+  document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+
+  requestAnimationFrame(() => setTimeout(updateCountdown, 1000));
+}
+
+function showCelebration() {
+  document.getElementById('countdown-screen').classList.add('hidden');
+  document.getElementById('celebration').classList.remove('hidden');
+  launchFireworksShow();
+}
+
+/* ===================== SOUND ENGINE (synthesized, no files needed) ===================== */
+let audioCtx;
+function getAudioCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playWhoosh() {
+  const ctx = getAudioCtx();
+  const duration = 0.5;
+  const bufferSize = ctx.sampleRate * duration;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+  }
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.setValueAtTime(800, ctx.currentTime);
+  filter.frequency.linearRampToValueAtTime(2500, ctx.currentTime + duration);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+  gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.05);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+  noise.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+  noise.start();
+  noise.stop(ctx.currentTime + duration);
+}
+
+function playBoom() {
+  const ctx = getAudioCtx();
+  const duration = 0.9;
+
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(120, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(35, ctx.currentTime + 0.35);
+
+  const oscGain = ctx.createGain();
+  oscGain.gain.setValueAtTime(0.5, ctx.currentTime);
+  oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+
+  osc.connect(oscGain);
+  oscGain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.4);
+
+  const bufferSize = ctx.sampleRate * duration;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.5);
+  }
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'highpass';
+  filter.frequency.value = 1500;
+
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.12, ctx.currentTime);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+  noise.connect(filter);
+  filter.connect(noiseGain);
+  noiseGain.connect(ctx.destination);
+  noise.start();
+  noise.stop(ctx.currentTime + duration);
+}
+
+/* ===================== FIREWORKS ===================== */
+const fwCanvas = document.getElementById('fireworks');
+const fwCtx = fwCanvas.getContext('2d');
+let particles = [];
+
+function randomColor() {
+  const colors = ['#f5c518', '#ff5fa2', '#5fc9ff', '#9b5fff', '#ffffff', '#5fff8f'];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+class Particle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 5 + 1.5;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+    this.alpha = 1;
+    this.color = color;
+    this.gravity = 0.04;
+    this.decay = Math.random() * 0.015 + 0.012;
+    this.size = Math.random() * 2 + 1.5;
+  }
+  update() {
+    this.vy += this.gravity;
+    this.x += this.vx;
+    this.y += this.vy;
+    this.alpha -= this.decay;
+  }
+  draw() {
+    fwCtx.globalAlpha = Math.max(this.alpha, 0);
+    fwCtx.beginPath();
+    fwCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    fwCtx.fillStyle = this.color;
+    fwCtx.fill();
+  }
+}
+
+function createFirework(x, y) {
+  const color = randomColor();
+  const count = 60;
+  for (let i = 0; i < count; i++) {
+    particles.push(new Particle(x, y, color));
+  }
+  if (soundEnabled) playBoom();
+}
+
+function launchAndBurst(x, y, delay) {
+  setTimeout(() => {
+    if (soundEnabled) playWhoosh();
+    setTimeout(() => createFirework(x, y), 350);
+  }, delay);
+}
+
+function animateFireworks() {
+  fwCtx.fillStyle = 'rgba(0,0,0,0.18)';
+  fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
+
+  particles.forEach(p => p.update());
+  particles = particles.filter(p => p.alpha > 0);
+  particles.forEach(p => p.draw());
+
+  fwCtx.globalAlpha = 1;
+  requestAnimationFrame(animateFireworks);
+}
+
+let fireworksInterval;
+let soundEnabled = false;
+
+function enableSound() {
+  soundEnabled = true;
+  getAudioCtx(); // unlocks audio on user gesture
+}
+
+function launchFireworksShow() {
+  animateFireworks();
+  fireworksInterval = setInterval(() => {
+    const x = Math.random() * fwCanvas.width * 0.8 + fwCanvas.width * 0.1;
+    const y = Math.random() * fwCanvas.height * 0.5 + fwCanvas.height * 0.05;
+    launchAndBurst(x, y, 0);
+  }, 900);
+
+  // initial burst of multiple fireworks
+  for (let i = 0; i < 5; i++) {
+    const x = Math.random() * fwCanvas.width * 0.8 + fwCanvas.width * 0.1;
+    const y = Math.random() * fwCanvas.height * 0.5 + fwCanvas.height * 0.05;
+    launchAndBurst(x, y, i * 400);
+  }
+}
+
+document.getElementById('replay').addEventListener('click', () => {
+  enableSound();
+  for (let i = 0; i < 6; i++) {
+    const x = Math.random() * fwCanvas.width * 0.8 + fwCanvas.width * 0.1;
+    const y = Math.random() * fwCanvas.height * 0.5 + fwCanvas.height * 0.05;
+    launchAndBurst(x, y, i * 350);
+  }
+});
+
+// Enable sound on first interaction with the countdown screen too,
+// so the very first fireworks burst (when countdown hits 0) has sound.
+document.addEventListener('click', enableSound, { once: true });
+document.addEventListener('touchstart', enableSound, { once: true });
+
+/* ===================== INIT ===================== */
+window.addEventListener('resize', () => {
+  resizeCanvases();
+  initStars();
+});
+
+resizeCanvases();
+initStars();
+drawStars();
+updateCountdown();
+</script>
+
+</body>
+</html>
